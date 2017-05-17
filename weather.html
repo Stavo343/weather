@@ -1,0 +1,299 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Local Weather App</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+@import url('https://fonts.googleapis.com/css?family=Righteous');
+
+body,
+html,
+.container-fluid {
+  height: 100%;
+}
+
+body {
+  background-color: black;
+  overflow-x: hidden;
+}
+
+#title {
+  width: 100%;
+  text-align: center;
+  font-family: righteous;
+  font-weight: bold;
+  float: right;
+  margin-top: 5%
+}
+
+#frame {
+  background: grey;
+  width: 70%;
+  position: absolute;
+  padding-top: 20px;
+  margin: 12% -50% 12% 50%;
+  transform: translate(-50%);
+}
+
+#oops {
+  background: grey;
+  width: 70%;
+  position: absolute;
+  margin: 20% -50% 20% 50%;
+  transform: translate(-50%);
+  text-align: center;
+  padding: 15%;
+  z-index: 1;
+}
+
+.ninja {
+  display: none;
+}
+
+.halves {
+  padding: 5%;
+  font-family: righteous;
+}
+
+#convert {
+  color: blue;
+  cursor: pointer;
+}
+
+#painting {
+  height: 100%;
+  width: 100%;
+}
+
+#description {
+  text-align: right;
+}
+
+</style>
+</head>
+<body>
+<div class="container-fluid">
+  <div id="title">
+    <h1>Local Weather App</h1>
+  </div>
+  <div id="oops">"Oh no! Either you haven't allowed me to access your location, or you're using Google Chrome which is out to protect you. Try changing this to get the app to work."</div>
+  <div id="frame" class="row">
+    <div id="bio" class="col-md-6 col-sm-6 col-xs-12 halves">
+      <div id="iSeeYou">Location: </div>
+      <div id="convert">Fahrenheit</div>
+      <div id="thermo">Temperature: </div>
+      <div id="precip">Chance of Precipitation: </div>
+      <div id="humidity">Humidity: </div>
+      </br>
+      <div id="summary">Summary: </div>
+    </div>
+    <div id="canvas" class="col-md-6 col-sm-6 col-xs-12 halves">
+      <img id="painting" class="img-responsive">
+      <div id="description"></div>
+    </div>
+    <div style="padding-left:5%">coded by <a href="#">Stephen Nierste</a></div>
+    <div id="filler"></div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script>
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(position) {
+    //Get weather API info
+    var apiKey = "5ec02c96c8294e5c7b4595eb5e986f30/";
+
+    var lat = position.coords.latitude;
+
+    var lon = position.coords.longitude;
+
+    var weatherBalloon =
+      "https://api.darksky.net/forecast/" + apiKey + lat + ", " + lon;
+
+    $.ajax({
+      url: weatherBalloon,
+      dataType: "jsonp",
+      success: function(json) {
+        $("#oops").addClass("ninja");
+        $("#thermo").html("Temperature: " + json.currently.temperature + "°");
+        $("#precip").html(
+          "Chance of Precipitation: " +
+            json.currently.precipProbability * 100 +
+            "%"
+        );
+        $("#humidity").html("Humidity: " + json.currently.humidity * 100 + "%");
+        $("#summary").html(json.hourly.summary);
+
+        //Switchability between C and F
+        var grade = "C";
+        $("#convert").on("click", function() {
+          if (grade == "C") {
+            $("#thermo").html(
+              "Temperature: " +
+                ((json.currently.temperature - 32) * 5 / 9).toFixed(2) +
+                "°"
+            );
+            grade = "F";
+            $("#convert").html("Celcius");
+          } else {
+            $("#thermo").html(
+              "Temperature: " + json.currently.temperature + "°"
+            );
+            grade = "C";
+            $("#convert").html("Fahrenheit");
+          }
+        });
+
+        //Verbal weather description
+        switch (json.currently.icon) {
+          case "clear-day":
+            $("#description").html("Clear Day");
+            break;
+          case "clear-night":
+            $("#description").html("Clear Night");
+            break;
+          case "rain":
+            $("#description").html("Rain");
+            break;
+          case "snow":
+            $("#description").html("Snow");
+            break;
+          case "sleet":
+            $("#description").html("Sleet");
+            break;
+          case "wind":
+            $("#description").html("Wind");
+            break;
+          case "fog":
+            $("#description").html("Fog");
+            break;
+          case "cloudy":
+            $("#description").html("Cloudy");
+            break;
+          case "partly-cloudy-day":
+            $("#description").html("Partly Cloudy Day");
+            break;
+          case "partly-cloudy-night":
+            $("#description").html("Partly Cloudy Night");
+            break;
+          default:
+            $("#description").html("Weather Undefinied: Open a window!");
+        }
+
+        //Pictorial weather description
+        switch (json.currently.icon) {
+          case "clear-day":
+            $("#painting").attr(
+              "src",
+              "https://static.squarespace.com/static/53bd3460e4b07d8e4ad42994/t/53d05575e4b0b1c1fde219b1/1406162293119/wallpapers-sky-clear-grasslands-hd-1280x800.jpg"
+            );
+            break;
+          case "clear-night":
+            $("#painting").attr(
+              "src",
+              "http://clear-night.com/img/clear-night-placeholder.jpg"
+            );
+            $("#description").attr("color", "white");
+            break;
+          case "rain":
+            $("#painting").attr(
+              "src",
+              "https://images2.alphacoders.com/180/180742.jpg"
+            );
+            $("#description").attr("color", "white");
+            break;
+          case "snow":
+            $("#painting").attr(
+              "src",
+              "https://upload.wikimedia.org/wikipedia/commons/e/e2/Snowing_%283980659835%29.jpg"
+            );
+            break;
+          case "sleet":
+            $("#painting").attr(
+              "src",
+              "https://atrivialmindatwork.files.wordpress.com/2014/12/dsc6267.jpg"
+            );
+            break;
+          case "wind":
+            $("#painting").attr(
+              "src",
+              "https://sarsrose.files.wordpress.com/2013/07/1338463_59722516.jpg"
+            );
+            break;
+          case "fog":
+            $("#painting").attr(
+              "src",
+              "https://www.howitworksdaily.com/wp-content/uploads/2014/08/fog-06.jpg"
+            );
+            break;
+          case "cloudy":
+            $("#painting").attr(
+              "src",
+              "http://orig00.deviantart.net/f680/f/2011/320/6/f/cloudy_texture_3_by_ohsallysfever-d4gfe5g.jpg"
+            );
+            break;
+          case "partly-cloudy-day":
+            $("#painting").attr(
+              "src",
+              "http://www.deguate.com/municipios/javascript-premium-weather-widget/bins/assets/bg-cloudy-day.jpg"
+            );
+            break;
+          case "partly-cloudy-night":
+            $("#painting").attr(
+              "src",
+              "http://cdn.weatheravenue.com/img/background/background-night.jpg"
+            );
+            $("#description").attr("color", "white");
+            break;
+          default:
+            $("#painting").attr(
+              "src",
+              "https://dsx.weather.com//util/image/w/7c88f0fd-a780-461b-8fd5-0dab86cc11a9_1.jpg?v=at&w=1280&h=720&api=7db9fe61-7414-47b5-9871-e17d87b8b6a0"
+            );
+        }
+      }
+    });
+
+    //Get location info
+    var googleAPI = "AIzaSyC8YKRC8m7B7Zw09B1PZTFxA1BzzsYF6FM";
+
+    var seekerMissile =
+      "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
+      lat +
+      ", " +
+      lon +
+      "&key=" +
+      googleAPI;
+
+    $.ajax({
+      url: seekerMissile,
+      dataType: "json",
+      success: function(json) {
+        var city = "";
+        var state = "";
+        var country = "";
+
+        for (var i = 0; i < json.results[0].address_components.length; i++) {
+          switch (json.results[0].address_components[i].types[0]) {
+            case "locality":
+              city = json.results[0].address_components[i].long_name;
+              break;
+            case "administrative_area_level_1":
+              state = json.results[0].address_components[i].long_name;
+              break;
+            case "country":
+              country = json.results[0].address_components[i].short_name;
+              break;
+          }
+        }
+        var location = city + ", " + state + " " + country;
+        $("#iSeeYou").html(location);
+      }
+    });
+  });
+}
+
+</script>
+</body>
+</html>
