@@ -1,0 +1,19 @@
+{
+  "name": "local-weather-app",
+  "version": "1.0.0",
+  "description": "This uses your IP address to show your local weather",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stavo343/weather.git"
+  },
+  "author": "stavo343",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stavo343/weather/issues"
+  },
+  "homepage": "https://github.com/stavo343/weather#readme"
+}
